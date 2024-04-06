@@ -32,7 +32,6 @@ return {
             },
             handlers = {
                 function(server_name) -- default handler (optional)
-
                     require("lspconfig")[server_name].setup {
                         capabilities = capabilities
                     }
@@ -51,6 +50,16 @@ return {
                         }
                     }
                 end,
+
+                ["eslint"] = function()
+                    local lspconfig = require("lspconfig")
+                    lspconfig.eslint.setup {
+                        capabilities = capabilities,
+                        on_attach = function()
+                            vim.keymap.set("n", "<leader>f", "<cmd>EslintFixAll<CR>")
+                        end
+                    }
+                end,
             }
         })
 
@@ -63,9 +72,9 @@ return {
                 end,
             },
             mapping = cmp.mapping.preset.insert({
-                ['<C-p>'] = cmp.mapping.select_prev_item(cmp_select),
-                ['<C-n>'] = cmp.mapping.select_next_item(cmp_select),
-                ['<C-y>'] = cmp.mapping.confirm({ select = true }),
+                ['<C-k>'] = cmp.mapping.select_prev_item(cmp_select),
+                ['<C-j>'] = cmp.mapping.select_next_item(cmp_select),
+                ['<Tab>'] = cmp.mapping.confirm({ select = true }),
                 ["<C-Space>"] = cmp.mapping.complete(),
             }),
             sources = cmp.config.sources({
