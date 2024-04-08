@@ -1,5 +1,6 @@
 return {
     "tpope/vim-fugitive",
+    dependencies = { "tpope/vim-rhubarb" },
     config = function()
         vim.keymap.set("n", "<leader>git", vim.cmd.Git)
         local Tomimelo_Fugitive = vim.api.nvim_create_augroup("Tomimelo_Fugitive", {})
