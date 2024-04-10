@@ -1,5 +1,7 @@
 #!/usr/bin/env bash
 
+CURRENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
+
 rm -rf ~/.config/nvim
-ln -s $(pwd) ~/.config/nvim
+ln -s $CURRENT_DIR ~/.config/nvim
 
