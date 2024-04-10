@@ -29,7 +29,11 @@ return {
                     vim.keymap.set("n", "<leader>f", "<cmd>EslintFixAll<CR>")
                 end
             },
-            tsserver = {}
+            tsserver = {},
+            html = {},
+            jsonls = {},
+            cssls = {},
+            angularls = {}
         }
         local ensure_installed = vim.tbl_keys(servers or {})
 
