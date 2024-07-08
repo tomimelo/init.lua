@@ -9,6 +9,7 @@ return {
     config = function()
         local cmp_lsp = require("cmp_nvim_lsp")
         local capabilities = vim.lsp.protocol.make_client_capabilities()
+        local lspconfig = require("lspconfig")
         capabilities = vim.tbl_deep_extend('force', capabilities, cmp_lsp.default_capabilities())
 
         local servers = {
@@ -31,7 +32,9 @@ return {
             html = {},
             jsonls = {},
             cssls = {},
-            angularls = {},
+            angularls = {
+                root_dir = lspconfig.util.root_pattern('angular.json', 'project.json')
+            },
             kotlin_language_server = {}
         }
         local ensure_installed = vim.tbl_keys(servers or {})
@@ -45,7 +48,7 @@ return {
                     if server_name == "tsserver" then return end
                     local server = servers[server_name] or {}
                     server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-                    require("lspconfig")[server_name].setup(server)
+                    lspconfig[server_name].setup(server)
                 end,
             }
         })

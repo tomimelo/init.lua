@@ -53,8 +53,8 @@ return {
                 end, { "i", "s" }),
             }),
             sources = {
-                { name = "luasnip",  priority = 40 }, -- For luasnip users.
-                { name = "nvim_lsp", priority = 30 },
+                { name = "nvim_lsp", priority = 40 },
+                { name = "luasnip",  priority = 30 }, -- For luasnip users.
                 { name = "buffer",   priority = 20 },
                 { name = "path",     priority = 10 }
             },
