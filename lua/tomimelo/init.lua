@@ -25,6 +25,7 @@ autocmd('TextYankPost', {
 autocmd('LspAttach', {
     callback = function(event)
         local opts = { buffer = event.buf }
+        local utils = require("tomimelo.utils")
 
         local map = function(keys, func, desc)
             vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
@@ -64,7 +65,7 @@ autocmd('LspAttach', {
 
         -- Rename the variable under your cursor.
         --  Most Language Servers support renaming across files, etc.
-        map('<leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+        map('<leader>rn', utils.lsp_buf_rename_use_priority_or_select, '[R]e[n]ame')
 
         -- Execute a code action, usually your cursor needs to be on top of an error
         -- or a suggestion from your LSP for this to activate.
