@@ -28,10 +28,11 @@ return {
                     vim.keymap.set("n", "<leader>f", "<cmd>EslintFixAll<CR>")
                 end
             },
-            tsserver = {},
+            vtsls = {},
             html = {},
             jsonls = {},
             cssls = {},
+            -- tsserver = {},
             angularls = {
                 root_dir = lspconfig.util.root_pattern('angular.json', 'project.json')
             },
