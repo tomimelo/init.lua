@@ -24,6 +24,7 @@ return {
 
             },
             eslint = {
+                root_dir = lspconfig.util.root_pattern('package.json', 'tsconfig.json'),
                 on_attach = function()
                     vim.keymap.set("n", "<leader>f", "<cmd>EslintFixAll<CR>")
                 end
@@ -34,9 +35,9 @@ return {
             cssls = {},
             -- tsserver = {},
             angularls = {
-                root_dir = lspconfig.util.root_pattern('angular.json', 'project.json')
+                root_dir = lspconfig.util.root_pattern('angular.json'--[[, 'project.json'--]])
             },
-            kotlin_language_server = {}
+            gopls = {},
         }
         local ensure_installed = vim.tbl_keys(servers or {})
 
