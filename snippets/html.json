@@ -9,6 +9,46 @@
     "body": ["[style.${1:property}]=\"${2:expression}\""],
     "description": "Angular [style] binding"
   },
+  "for": {
+    "prefix": "a-for",
+    "body": [
+        "@for (${1:item} of ${2:list}; track ${3:\\$index}) {",
+        "\t$0",
+        "}"
+    ],
+    "description": "Angular @for block"
+  },
+  "forEmpty": {
+    "prefix": "a-for-empty",
+    "body": [
+        "@for (${1:item} of ${2:list}; track ${3:\\$index}) {",
+        "\t${4:}",
+        "} @empty {",
+        "\t$0",
+        "}"
+    ],
+    "description": "Angular @for @empty block"
+  },
+  "if": {
+    "prefix": "a-if",
+    "body": [
+        "@if (${1:condition}; as ${2:rename}) {",
+        "\t$0",
+        "}"
+    ],
+    "description": "Angular @if block"
+  },
+  "ifElse": {
+    "prefix": "a-if-else",
+    "body": [
+        "@if (${1:condition}; as ${2:rename}) {",
+        "\t${3:}",
+        "} @else {",
+        "\t$0",
+        "}"
+    ],
+    "description": "Angular @if @else block"
+  },
   "ngClass": {
     "prefix": "a-ngClass",
     "body": ["[ngClass]=\"{${1:cssClass}: ${2:expression}}\""],

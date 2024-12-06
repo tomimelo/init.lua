@@ -669,6 +669,15 @@
             "})"
         ]
     },
+    "Tests afterEach function": {
+        "prefix": "t-afterEach",
+        "description": "afterEach Function",
+        "body": [
+            "afterEach(() => {",
+            "   ${0}",
+            "})"
+        ]
+    },
     "Tests it function": {
         "prefix": "t-it",
         "description": "it Function",
