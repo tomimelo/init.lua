@@ -5,8 +5,13 @@ return {
             ["<C-p>"] = false,
             ["<C-c>"] = false,
             ["<C-h>"] = false,
-            ["<C-l>"] = false,
+            ["<C-t>"] = false,
+            ["<C-n>"] = false,
+            ["<C-s>"] = false,
             ["<C-r>"] = "actions.refresh",
+        },
+        view_options = {
+            show_hidden = true,
         },
     },
     -- Optional dependencies
