@@ -1,7 +1,41 @@
 #!/usr/bin/env bash
+dry_run="0"
 
 CURRENT_DIR=$( cd -- "$( dirname -- "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )
 
-rm -rf ~/.config/nvim
-ln -s $CURRENT_DIR ~/.config/nvim
+if [ -z "$XDG_CONFIG_HOME" ]; then
+    echo "no xdg config hom"
+    echo "using ~/.config"
+    XDG_CONFIG_HOME=$HOME/.config
+fi
 
+if [[ $1 == "--dry" ]]; then
+    dry_run="1"
+fi
+
+log() {
+    if [[ $dry_run == "1" ]]; then
+        echo "[DRY_RUN]: $1"
+    else
+        echo "$1"
+    fi
+}
+
+update_files() {
+    log "copying over files from: $1"
+    pushd $1 &> /dev/null
+    directory=${2%/}/nvim
+    log "    removing: rm -rf $directory"
+
+    if [[ $dry_run == "0" ]]; then
+        rm -rf $directory
+    fi
+
+    log "    copying env: cp $CURRENT_DIR/. $directory"
+    if [[ $dry_run == "0" ]]; then
+        cp -r $CURRENT_DIR/. $directory
+    fi
+    popd &> /dev/null
+}
+
+update_files $CURRENT_DIR $XDG_CONFIG_HOME
