@@ -686,5 +686,20 @@
             "   ${0}",
             "})"
         ]
+    },
+    "NestJS Module": {
+        "prefix": "n-module",
+        "description": "NestJS Module",
+        "body": [
+            "import { Module } from '@nestjs/common';",
+            "",
+            "@Module({",
+            "\timports: [],",
+            "\tproviders: [],",
+            "\texports: [],",
+            "})",
+            "export class ${1:Name}Module { }",
+            "$0"
+        ]
     }
 }
