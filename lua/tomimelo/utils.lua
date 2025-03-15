@@ -1,7 +1,7 @@
 local lsp_priority = {
     rename = {
-        "angularls",
         "vtsls",
+        "angularls",
     },
 }
 
