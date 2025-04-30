@@ -24,10 +24,33 @@ return {
 
             },
             eslint = {
-                root_dir = lspconfig.util.root_pattern('package.json', 'tsconfig.json'),
-                on_attach = function()
-                    vim.keymap.set("n", "<leader>f", "<cmd>EslintFixAll<CR>")
-                end
+                root_dir = function(fname)
+                    local eslint_root = lspconfig.util.root_pattern(
+                        ".eslintrc",
+                        ".eslintrc.js",
+                        ".eslintrc.cjs",
+                        ".eslintrc.json",
+                        "eslint.config.js"
+                    )(fname)
+
+                    if not eslint_root then
+                        return nil
+                    end
+
+                    local has_package_json = lspconfig.util.path.exists(lspconfig.util.path.join(eslint_root,
+                        "package.json"))
+                    local has_tsconfig = lspconfig.util.path.exists(lspconfig.util.path.join(eslint_root, "tsconfig.json"))
+
+                    if has_package_json or has_tsconfig then
+                        return eslint_root
+                    end
+
+                    return nil
+                end,
+                filetypes = { "javascript", "typescript", "html" },
+                on_attach = function(client, bufnr)
+                    vim.keymap.set("n", "<leader>f", "<cmd>EslintFixAll<CR>", { buffer = bufnr })
+                end,
             },
             vtsls = {},
             html = {},
@@ -35,7 +58,16 @@ return {
             cssls = {},
             -- tsserver = {},
             angularls = {
-                root_dir = lspconfig.util.root_pattern('angular.json'--[[, 'project.json'--]])
+                root_dir = lspconfig.util.root_pattern('angular.json' --[[, 'project.json'--]])
+            },
+            biome = {
+                filetypes = { "javascript", "typescript", "css", "scss", "json" },
+                root_dir = lspconfig.util.root_pattern('biome.json'),
+                on_attach = function(client, bufnr)
+                    vim.keymap.set("n", "<leader>f", function()
+                        vim.lsp.buf.format({ async = true })
+                    end, { buffer = bufnr })
+                end,
             },
             gopls = {},
         }
