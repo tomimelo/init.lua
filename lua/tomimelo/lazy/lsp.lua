@@ -80,7 +80,6 @@ return {
             ensure_installed = ensure_installed,
             handlers = {
                 function(server_name) -- default handler (optional)
-                    if server_name == "tsserver" then return end
                     local server = servers[server_name] or {}
                     server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
                     lspconfig[server_name].setup(server)
