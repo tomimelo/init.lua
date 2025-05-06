@@ -66,7 +66,12 @@ return {
                 root_dir = lspconfig.util.root_pattern('biome.json'),
                 on_attach = function(client, bufnr)
                     vim.keymap.set("n", "<leader>f", function()
-                        vim.lsp.buf.format({ async = true })
+                        vim.lsp.buf.format({
+                            async = true,
+                            filter = function(c)
+                                return c.name == "biome"
+                            end
+                        })
                     end, { buffer = bufnr })
                 end,
             },
