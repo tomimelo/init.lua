@@ -30,7 +30,8 @@ return {
                         ".eslintrc.js",
                         ".eslintrc.cjs",
                         ".eslintrc.json",
-                        "eslint.config.js"
+                        "eslint.config.js",
+                        "eslint.config.mjs"
                     )(fname)
 
                     if not eslint_root then
