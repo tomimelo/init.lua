@@ -25,25 +25,33 @@ return {
             },
             eslint = {
                 root_dir = function(fname)
-                    local eslint_root = lspconfig.util.root_pattern(
-                        ".eslintrc",
-                        ".eslintrc.js",
-                        ".eslintrc.cjs",
-                        ".eslintrc.json",
-                        "eslint.config.js",
-                        "eslint.config.mjs"
-                    )(fname)
+                    local util = require("lspconfig.util")
+                    local path = util.path
 
-                    if not eslint_root then
-                        return nil
-                    end
+                    local dir = path.dirname(fname)
 
-                    local has_package_json = lspconfig.util.path.exists(lspconfig.util.path.join(eslint_root,
-                        "package.json"))
-                    local has_tsconfig = lspconfig.util.path.exists(lspconfig.util.path.join(eslint_root, "tsconfig.json"))
+                    while dir do
+                        for _, config in ipairs({
+                            ".eslintrc.json",
+                            "eslint.config.js",
+                            "eslint.config.mjs",
+                            ".eslintrc",
+                            ".eslintrc.js",
+                            ".eslintrc.cjs",
+                        }) do
+                            local config_path = path.join(dir, config)
+                            if path.exists(config_path) then
+                                local has_package = path.exists(path.join(dir, "package.json"))
+                                local has_tsconfig = path.exists(path.join(dir, "tsconfig.json"))
 
-                    if has_package_json or has_tsconfig then
-                        return eslint_root
+                                if has_package or has_tsconfig then
+                                    return dir
+                                end
+                            end
+                        end
+                        local parent = path.dirname(dir)
+                        if parent == dir then break end
+                        dir = parent
                     end
 
                     return nil
@@ -59,7 +67,7 @@ return {
             cssls = {},
             -- tsserver = {},
             angularls = {
-                root_dir = lspconfig.util.root_pattern('angular.json' --[[, 'project.json'--]])
+                root_dir = lspconfig.util.root_pattern('angular.json', 'project.json')
             },
             biome = {
                 filetypes = { "javascript", "typescript", "css", "scss", "json" },
