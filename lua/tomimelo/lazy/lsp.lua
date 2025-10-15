@@ -8,100 +8,113 @@ return {
     },
     config = function()
         local cmp_lsp = require("cmp_nvim_lsp")
-        local capabilities = vim.lsp.protocol.make_client_capabilities()
-        local lspconfig = require("lspconfig")
-        capabilities = vim.tbl_deep_extend('force', capabilities, cmp_lsp.default_capabilities())
+        local capabilities = vim.tbl_deep_extend('force', vim.lsp.protocol.make_client_capabilities(),
+            cmp_lsp.default_capabilities())
 
-        local servers = {
-            lua_ls = {
-                settings = {
-                    Lua = {
-                        diagnostics = {
-                            globals = { "vim", "it", "describe", "before_each", "after_each" },
-                        }
-                    }
-                }
+        local function exists(path)
+            return path and vim.uv.fs_stat(path) ~= nil
+        end
 
+        -- eslint root: look up for eslint config + (package.json OR tsconfig.json)
+        local function eslint_root(arg)
+            local bufnr = type(arg) == "number" and arg or 0
+            -- This uses Neovim's new root finder. It walks up from the buffer's path.
+            return vim.fs.root(bufnr,
+                { "eslint.config.js", "eslint.config.mjs", ".eslintrc", ".eslintrc.js", ".eslintrc.cjs", ".eslintrc.json" })
+        end
+
+        -- ── Server configs ───────────────────────────────────────────────
+        -- lua_ls
+        vim.lsp.config("lua_ls", {
+            capabilities = capabilities,
+            settings = {
+                Lua = {
+                    diagnostics = { globals = { "vim", "it", "describe", "before_each", "after_each" } },
+                },
             },
-            eslint = {
-                root_dir = function(fname)
-                    local util = require("lspconfig.util")
-                    local path = util.path
+        })
 
-                    local dir = path.dirname(fname)
+        -- eslint
+        local base_eslint_on_attach = vim.lsp.config.eslint and vim.lsp.config.eslint.on_attach
+        vim.lsp.config("eslint", {
+            capabilities = capabilities,
+            filetypes = { "javascript", "typescript", "html" },
+            -- root_dir = eslint_root,
+            on_attach = function(client, bufnr)
+                if base_eslint_on_attach then base_eslint_on_attach(client, bufnr) end
+                vim.keymap.set("n", "<leader>f", "<cmd>LspEslintFixAll<CR>", {
+                    buffer = bufnr, noremap = true, silent = true, desc = "ESLint Fix All (LSP)",
+                })
+            end,
+        })
 
-                    while dir do
-                        for _, config in ipairs({
-                            ".eslintrc.json",
-                            "eslint.config.js",
-                            "eslint.config.mjs",
-                            ".eslintrc",
-                            ".eslintrc.js",
-                            ".eslintrc.cjs",
-                        }) do
-                            local config_path = path.join(dir, config)
-                            if path.exists(config_path) then
-                                local has_package = path.exists(path.join(dir, "package.json"))
-                                local has_tsconfig = path.exists(path.join(dir, "tsconfig.json"))
+        -- vtsls
+        local base_vtsls_on_attach = vim.lsp.config.vtsls and vim.lsp.config.vtsls.on_attach
+        vim.lsp.config("vtsls", {
+            capabilities = capabilities,
+            on_attach = function(client, bufnr)
+                if base_vtsls_on_attach then base_vtsls_on_attach(client, bufnr) end
+                -- client.server_capabilities.documentFormattingProvider = false
+            end,
+        })
 
-                                if has_package or has_tsconfig then
-                                    return dir
-                                end
-                            end
+        -- biome
+        local function biome_root(arg)
+            local bufnr = type(arg) == "number" and arg or 0
+            return vim.fs.root(bufnr, { "biome.json" })
+        end
+        local base_biome_on_attach = vim.lsp.config.biome and vim.lsp.config.biome.on_attach
+        vim.lsp.config("biome", {
+            capabilities = capabilities,
+            filetypes = { "javascript", "typescript", "css", "scss", "json" },
+            root_dir = biome_root,
+            on_attach = function(client, bufnr)
+                if base_biome_on_attach then base_biome_on_attach(client, bufnr) end
+                vim.keymap.set("n", "<leader>f", function()
+                    vim.lsp.buf.format({
+                        async = true,
+                        filter = function(c)
+                            return c.name == "biome"
                         end
-                        local parent = path.dirname(dir)
-                        if parent == dir then break end
-                        dir = parent
-                    end
+                    })
+                end, { buffer = bufnr })
+            end,
+        })
 
-                    return nil
-                end,
-                filetypes = { "javascript", "typescript", "html" },
-                on_attach = function(client, bufnr)
-                    vim.keymap.set("n", "<leader>f", "<cmd>EslintFixAll<CR>", { buffer = bufnr })
-                end,
-            },
-            vtsls = {},
-            html = {},
-            jsonls = {},
-            cssls = {},
-            -- tsserver = {},
-            angularls = {
-                root_dir = lspconfig.util.root_pattern('angular.json', 'project.json')
-            },
-            biome = {
-                filetypes = { "javascript", "typescript", "css", "scss", "json" },
-                root_dir = lspconfig.util.root_pattern('biome.json'),
-                on_attach = function(client, bufnr)
-                    vim.keymap.set("n", "<leader>f", function()
-                        vim.lsp.buf.format({
-                            async = true,
-                            filter = function(c)
-                                return c.name == "biome"
-                            end
-                        })
-                    end, { buffer = bufnr })
-                end,
-            },
-            gopls = {},
-        }
-        local ensure_installed = vim.tbl_keys(servers or {})
+        -- angularls (root via angular.json or project.json)
+        local function angular_root(arg)
+            local bufnr = type(arg) == "number" and arg or 0
+            return vim.fs.root(bufnr, { "angular.json", "project.json" })
+        end
+        vim.lsp.config("angularls", {
+            capabilities = capabilities,
+            -- root_dir = angular_root,
+        })
+
+        -- html / jsonls / cssls / gopls
+        for _, name in ipairs({ "html", "jsonls", "cssls", "gopls" }) do
+            local base = vim.lsp.config[name] or {}
+            vim.lsp.config(name, vim.tbl_deep_extend("force", base, { capabilities = capabilities }))
+        end
 
         require("fidget").setup({})
         require("mason").setup()
         require("mason-lspconfig").setup({
-            ensure_installed = ensure_installed,
-            handlers = {
-                function(server_name) -- default handler (optional)
-                    local server = servers[server_name] or {}
-                    server.capabilities = vim.tbl_deep_extend('force', {}, capabilities, server.capabilities or {})
-                    lspconfig[server_name].setup(server)
-                end,
-            }
+            ensure_installed = {
+                "lua_ls", "eslint", "vtsls", "html", "jsonls", "cssls", "angularls", "biome", "gopls",
+            },
         })
+
+        for _, name in ipairs({
+            "lua_ls", "eslint", "vtsls", "html", "jsonls", "cssls", "angularls", "biome", "gopls",
+        }) do
+            vim.lsp.enable(name)
+        end
 
         vim.diagnostic.config({
             -- update_in_insert = true,
+            virtual_text = { spacing = 2, source = "if_many" }, -- <— inline messages ON
+            virtual_lines = false,
             float = {
                 focusable = false,
                 style = "minimal",
