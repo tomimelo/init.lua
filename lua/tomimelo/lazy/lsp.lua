@@ -59,15 +59,13 @@ return {
         })
 
         -- biome
-        local function biome_root(arg)
-            local bufnr = type(arg) == "number" and arg or 0
-            return vim.fs.root(bufnr, { "biome.json" })
-        end
         local base_biome_on_attach = vim.lsp.config.biome and vim.lsp.config.biome.on_attach
         vim.lsp.config("biome", {
             capabilities = capabilities,
             filetypes = { "javascript", "typescript", "css", "scss", "json" },
-            -- root_dir = biome_root,
+            root_dir = function(bufnr, on_dir)
+                on_dir(vim.fs.root(bufnr, { 'biome.json' }))
+            end,
             on_attach = function(client, bufnr)
                 if base_biome_on_attach then base_biome_on_attach(client, bufnr) end
                 vim.keymap.set("n", "<leader>f", function()
@@ -82,13 +80,12 @@ return {
         })
 
         -- angularls (root via angular.json or project.json)
-        local function angular_root(arg)
-            local bufnr = type(arg) == "number" and arg or 0
-            return vim.fs.root(bufnr, { "angular.json", "project.json" })
-        end
         vim.lsp.config("angularls", {
             capabilities = capabilities,
-            -- root_dir = angular_root,
+            root_dir = function(bufnr, on_dir)
+                on_dir(vim.fs.root(bufnr, { "angular.json", "project.json" }))
+            end,
+            workspace_required = true
         })
 
         -- html / jsonls / cssls / gopls
