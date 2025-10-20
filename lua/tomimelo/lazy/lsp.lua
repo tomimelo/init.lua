@@ -67,7 +67,7 @@ return {
         vim.lsp.config("biome", {
             capabilities = capabilities,
             filetypes = { "javascript", "typescript", "css", "scss", "json" },
-            root_dir = biome_root,
+            -- root_dir = biome_root,
             on_attach = function(client, bufnr)
                 if base_biome_on_attach then base_biome_on_attach(client, bufnr) end
                 vim.keymap.set("n", "<leader>f", function()
