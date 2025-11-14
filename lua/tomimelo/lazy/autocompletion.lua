@@ -21,6 +21,7 @@ return {
         local cmp_select = { behavior = cmp.SelectBehavior.Select }
 
         luasnip.config.setup {}
+        luasnip.filetype_extend("htmlangular", { "html" })
 
         cmp.setup({
             snippet = {

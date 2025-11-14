@@ -3,18 +3,17 @@
         "prefix": "a-component",
         "description": "Angular component",
         "body": [
-            "import { ChangeDetectionStrategy, Component } from '@angular/core';",
+            "import {ChangeDetectionStrategy, Component} from '@angular/core';",
             "",
             "@Component({",
             "\tselector: '${1:selector-name}',",
-            "\ttemplateUrl: '${2:name}.component.html',",
-            "\tstyleUrl: '${3:name}.component.scss',",
-            "\tchangeDetection: ChangeDetectionStrategy.OnPush",
+            "\ttemplateUrl: '${2:name}.html',",
+            "\tstyleUrl: '${3:name}.scss',",
+            "\tchangeDetection: ChangeDetectionStrategy.OnPush,",
             "})",
-            "",
-            "export class ${4:Name}Component {",
-            "",
-            "}$0"
+            "export class ${4:Name} {",
+            "$0",
+            "}"
         ]
     },
     "Angular Pipe": {
