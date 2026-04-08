@@ -1,54 +1,99 @@
 return {
     "nvim-treesitter/nvim-treesitter",
+    lazy = false,
+    branch = 'main',
     build = ":TSUpdate",
-    dependencies = { "nvim-treesitter/nvim-treesitter-context" },
+    dependencies = {
+        "nvim-treesitter/nvim-treesitter-context",
+    },
     config = function()
-        require("nvim-treesitter.configs").setup({
-            -- A list of parser names, or "all"
-            ensure_installed = {
-                "javascript", "typescript", "html", "markdown", "vimdoc", "vim", "luadoc", "lua", "c", "bash", "go"
-            },
+        local ts = require("nvim-treesitter")
 
-            -- Install parsers synchronously (only applied to `ensure_installed`)
-            sync_install = false,
-
-            -- Automatically install missing parsers when entering buffer
-            -- Recommendation: set to false if you don"t have `tree-sitter` CLI installed locally
-            auto_install = true,
-
-            indent = {
-                enable = true
-            },
-
-            highlight = {
-                -- `false` will disable the whole extension
-                enable = true,
-
-                -- Setting this to true will run `:h syntax` and tree-sitter at the same time.
-                -- Set this to `true` if you depend on "syntax" being enabled (like for indentation).
-                -- Using this option may slow down your editor, and you may see some duplicate highlights.
-                -- Instead of true it can also be a list of languages
-                additional_vim_regex_highlighting = { "markdown" },
-                -- Or use a function for more flexibility, e.g. to disable slow treesitter highlight for large files
-                disable = function(lang, buf)
-                    local max_filesize = 100 * 1024 -- 100 KB
-                    local ok, stats = pcall(vim.loop.fs_stat, vim.api.nvim_buf_get_name(buf))
-                    if ok and stats and stats.size > max_filesize then
-                        return true
-                    end
-                end,
-            },
+        ts.setup({
+            install_dir = vim.fn.stdpath("data") .. "/site",
         })
 
-        local treesitter_parser_config = require("nvim-treesitter.parsers").get_parser_configs()
-        treesitter_parser_config.templ = {
-            install_info = {
-                url = "https://github.com/vrischmann/tree-sitter-templ.git",
-                files = { "src/parser.c", "src/scanner.c" },
-                branch = "master",
-            },
-        }
+        -- Custom parser definition on main
+        vim.api.nvim_create_autocmd("User", {
+            pattern = "TSUpdate",
+            callback = function()
+                require("nvim-treesitter.parsers").templ = {
+                    install_info = {
+                        url = "https://github.com/vrischmann/tree-sitter-templ.git",
+                        files = { "src/parser.c", "src/scanner.c" },
+                        branch = "master",
+                    },
+                }
+            end,
+        })
 
-        vim.treesitter.language.register("templ", "templ")
-    end
+        -- Register parser <-> filetype mapping
+        vim.treesitter.language.register("templ", { "templ" })
+
+        -- Install parsers
+        ts.install({
+            "javascript",
+            "typescript",
+            "html",
+            "vimdoc",
+            "vim",
+            "luadoc",
+            "lua",
+            "c",
+            "bash",
+            "go",
+            "templ",
+        })
+
+        -- Enable Treesitter highlighting per filetype, with your old large-file guard
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = {
+                "javascript",
+                "typescript",
+                "html",
+                "vimdoc",
+                "vim",
+                "lua",
+                "c",
+                "sh",
+                "bash",
+                "go",
+                "templ",
+                "markdown",
+            },
+            callback = function(args)
+                local max_filesize = 100 * 1024
+                local filename = vim.api.nvim_buf_get_name(args.buf)
+                local ok, stats = pcall(vim.uv.fs_stat, filename)
+                if ok and stats and stats.size > max_filesize then
+                    return
+                end
+
+                pcall(vim.treesitter.start, args.buf)
+
+                -- Approximation of your old additional_vim_regex_highlighting = { "markdown" }
+                if vim.bo[args.buf].filetype == "markdown" then
+                    vim.bo[args.buf].syntax = "markdown"
+                end
+            end,
+        })
+
+        -- Enable Treesitter indent per filetype
+        vim.api.nvim_create_autocmd("FileType", {
+            pattern = {
+                "javascript",
+                "typescript",
+                "html",
+                "lua",
+                "c",
+                "sh",
+                "bash",
+                "go",
+                "templ",
+            },
+            callback = function(args)
+                vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
+            end,
+        })
+    end,
 }
