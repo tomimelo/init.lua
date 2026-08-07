@@ -65,9 +65,9 @@ return {
                 local max_filesize = 100 * 1024
                 local filename = vim.api.nvim_buf_get_name(args.buf)
                 local ok, stats = pcall(vim.uv.fs_stat, filename)
-                if ok and stats and stats.size > max_filesize then
-                    return
-                end
+                -- if ok and stats and stats.size > max_filesize then
+                --     return
+                -- end
 
                 pcall(vim.treesitter.start, args.buf)
 
