@@ -43,7 +43,7 @@ return {
             "bash",
             "go",
             "templ",
-        })
+        }, { max_jobs = 1 })
 
         -- Enable Treesitter highlighting per filetype, with your old large-file guard
         vim.api.nvim_create_autocmd("FileType", {
