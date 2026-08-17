@@ -88,8 +88,8 @@ return {
             workspace_required = true
         })
 
-        -- html / jsonls / cssls / gopls
-        for _, name in ipairs({ "html", "jsonls", "cssls", "gopls" }) do
+        -- html / jsonls / cssls
+        for _, name in ipairs({ "html", "jsonls", "cssls" }) do
             local base = vim.lsp.config[name] or {}
             vim.lsp.config(name, vim.tbl_deep_extend("force", base, { capabilities = capabilities }))
         end
@@ -98,12 +98,12 @@ return {
         require("mason").setup()
         require("mason-lspconfig").setup({
             ensure_installed = {
-                "lua_ls", "eslint", "vtsls", "html", "jsonls", "cssls", "angularls", "biome", "gopls",
+                "lua_ls", "eslint", "vtsls", "html", "jsonls", "cssls", "angularls", "biome",
             },
         })
 
         for _, name in ipairs({
-            "lua_ls", "eslint", "vtsls", "html", "jsonls", "cssls", "angularls", "biome", "gopls",
+            "lua_ls", "eslint", "vtsls", "html", "jsonls", "cssls", "angularls", "biome",
         }) do
             vim.lsp.enable(name)
         end

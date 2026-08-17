@@ -13,23 +13,6 @@ return {
             install_dir = vim.fn.stdpath("data") .. "/site",
         })
 
-        -- Custom parser definition on main
-        vim.api.nvim_create_autocmd("User", {
-            pattern = "TSUpdate",
-            callback = function()
-                require("nvim-treesitter.parsers").templ = {
-                    install_info = {
-                        url = "https://github.com/vrischmann/tree-sitter-templ.git",
-                        files = { "src/parser.c", "src/scanner.c" },
-                        branch = "master",
-                    },
-                }
-            end,
-        })
-
-        -- Register parser <-> filetype mapping
-        vim.treesitter.language.register("templ", { "templ" })
-
         -- Install parsers
         ts.install({
             "javascript",
@@ -41,8 +24,6 @@ return {
             "lua",
             "c",
             "bash",
-            "go",
-            "templ",
         }, { max_jobs = 1 })
 
         -- Enable Treesitter highlighting per filetype, with your old large-file guard
@@ -57,8 +38,6 @@ return {
                 "c",
                 "sh",
                 "bash",
-                "go",
-                "templ",
                 "markdown",
             },
             callback = function(args)
@@ -88,8 +67,6 @@ return {
                 "c",
                 "sh",
                 "bash",
-                "go",
-                "templ",
             },
             callback = function(args)
                 vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
